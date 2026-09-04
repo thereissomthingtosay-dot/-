@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>下午一點與下午兩點 — 一份會議紀錄的互動閱讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E3E4DF; --paper-2:#DADCD5; --ink:#1B1B19; --ink-soft:#5E5F59; --ink-faint:#8E8F88;
+  --red:#B4342C; --blue:#2F5D6B; --rule:#B9BBB2; --bar:#26261F;
+  --serif:"Noto Serif TC","Songti TC",serif; --sans:"Noto Sans TC","PingFang TC",system-ui,sans-serif;
+}
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--serif);font-weight:300;
+  line-height:1.95;font-size:17px;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:repeating-linear-gradient(to bottom,transparent 0 35px,rgba(27,27,25,.035) 35px 36px)}
+.wrap{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:0 24px 150px}
+
+header.mast{padding:86px 0 38px;border-bottom:1px solid var(--ink)}
+.docline{font-family:var(--sans);font-size:12px;letter-spacing:.15em;color:var(--ink-soft);margin-bottom:24px}
+.clock{display:flex;gap:26px;align-items:baseline;flex-wrap:wrap;margin-bottom:14px}
+.clock .t{font-family:var(--serif);font-weight:700;font-size:clamp(40px,9vw,86px);line-height:1;letter-spacing:.02em}
+.clock .t.one{color:var(--blue)}
+.clock .t.two{color:var(--red)}
+.clock .lbl{font-family:var(--sans);font-size:13px;color:var(--ink-soft);line-height:1.7}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(26px,4.6vw,40px);line-height:1.3;margin:18px 0 0;letter-spacing:.02em}
+.sub{font-family:var(--sans);font-size:14.5px;color:var(--ink-soft);margin-top:20px;max-width:46em;line-height:2.05}
+
+.leaf{display:grid;grid-template-columns:186px minmax(0,1fr);gap:34px;padding:52px 0;border-bottom:1px solid var(--rule)}
+.gutter{font-family:var(--sans);font-size:12px;color:var(--ink-faint);line-height:1.75;text-align:right;padding-top:6px}
+.gutter .act{font-weight:700;font-size:12px;letter-spacing:.14em;display:block;margin-bottom:8px;color:var(--red)}
+.gutter .act.b{color:var(--blue)}
+.body{max-width:38em}
+h2{font-family:var(--serif);font-weight:700;font-size:29px;line-height:1.42;margin:0 0 18px}
+p{margin:0 0 16px}
+.stage{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);border-left:2px solid var(--rule);
+  padding-left:14px;margin:0 0 22px;line-height:1.9}
+
+blockquote{margin:22px 0;padding:16px 20px 14px;background:rgba(255,255,255,.45);
+  border-left:3px solid var(--ink);font-size:16.5px;line-height:1.95}
+blockquote cite{display:block;font-family:var(--sans);font-style:normal;font-size:12px;
+  color:var(--ink-faint);margin-top:10px;letter-spacing:.04em}
+
+.choices{margin:26px 0 0;border-top:1px solid var(--ink)}
+button.opt{all:unset;display:block;cursor:pointer;width:100%;font-family:var(--serif);font-size:17px;
+  line-height:1.75;padding:15px 16px 15px 40px;border-bottom:1px solid var(--rule);position:relative;transition:background .16s}
+button.opt::before{content:"□";position:absolute;left:14px;top:15px;color:var(--ink-faint);font-family:var(--sans)}
+button.opt:hover{background:rgba(255,255,255,.55)}
+button.opt:focus-visible{outline:2px solid var(--red);outline-offset:-2px}
+button.opt[disabled]{cursor:default;color:var(--ink-faint);opacity:.5}
+button.opt.chosen::before{content:"■";color:var(--red)}
+button.opt.chosen{background:rgba(180,52,44,.06);color:var(--ink);opacity:1}
+
+.outcome{margin:24px 0 0;padding:20px 22px;background:rgba(255,255,255,.55);
+  border:1px solid var(--rule);border-left:3px solid var(--red)}
+.outcome.blue{border-left-color:var(--blue)}
+.verdict{font-family:var(--sans);font-size:12px;letter-spacing:.13em;color:var(--red);margin-bottom:10px;font-weight:700}
+.outcome.blue .verdict{color:var(--blue)}
+.outcome p:last-child{margin-bottom:0}
+
+.board{font-family:var(--sans);font-size:14px;margin:24px 0;width:100%;border-collapse:collapse}
+.board td{padding:9px 6px;border-bottom:1px solid var(--rule)}
+.board td:last-child{text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.board tr.you td{color:var(--red);font-weight:700}
+.board tr.her td{color:var(--blue);font-weight:700}
+.num{display:inline-block;min-width:2.4em;text-align:right}
+
+del{text-decoration:none;position:relative;color:var(--ink-faint)}
+del::after{content:"";position:absolute;left:0;right:0;top:52%;height:1.5px;background:var(--red)}
+ins{text-decoration:none;color:var(--red)}
+
+.teapot{margin:30px 0;padding:26px 24px;border:1px solid var(--ink);background:rgba(255,255,255,.4)}
+.teapot .eq{font-family:var(--sans);font-size:17px;line-height:2.2;font-weight:500}
+.teapot .eq span{color:var(--red)}
+.teapot p{font-family:var(--sans);font-size:14px;line-height:2;margin:16px 0 0;color:var(--ink-soft)}
+
+.split{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--ink);margin:26px 0;
+  font-family:var(--sans);font-size:13.5px;line-height:1.85}
+.split>div{padding:20px 18px}
+.split>div:first-child{border-right:1px solid var(--ink)}
+.split h4{font-family:var(--serif);font-size:17px;font-weight:700;margin:0 0 12px}
+.split ul{margin:0;padding-left:18px} .split li{margin-bottom:9px}
+
+.missing{margin:28px 0;border:1px solid var(--ink);padding:24px;background:rgba(47,93,107,.06);text-align:center}
+.missing .big{font-family:var(--serif);font-size:clamp(30px,7vw,54px);font-weight:700;line-height:1.2;color:var(--blue)}
+.missing .cap{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:2;margin-top:14px;text-align:left}
+
+.tally{border-top:1px solid var(--ink);margin-top:30px}
+.tally .row{display:grid;grid-template-columns:160px minmax(0,1fr);gap:20px;padding:16px 0;
+  border-bottom:1px solid var(--rule);font-size:16px}
+.tally .who{font-family:var(--sans);font-size:13.5px;color:var(--ink-soft);line-height:1.8}
+
+.qs{margin:0;padding:0;list-style:none;counter-reset:q}
+.qs li{counter-increment:q;padding:14px 0 14px 46px;border-bottom:1px solid var(--rule);
+  position:relative;font-size:16px;line-height:1.9}
+.qs li::before{content:counter(q);position:absolute;left:0;top:16px;font-family:var(--sans);
+  font-size:12px;color:var(--red);font-weight:700}
+.qs li.key::before{color:var(--blue)}
+.qs li.key{font-weight:500}
+
+.hidden{display:none}
+.fnote{font-family:var(--sans);font-size:12.5px;color:var(--ink-faint);line-height:1.98;max-width:46em;margin-top:40px}
+.restart{all:unset;cursor:pointer;font-family:var(--sans);font-size:13px;color:var(--ink-soft);
+  border-bottom:1px solid var(--ink-faint);padding-bottom:2px;margin-top:36px;display:inline-block}
+.restart:hover{color:var(--red);border-color:var(--red)}
+.ledger{position:fixed;right:18px;bottom:18px;z-index:20;font-family:var(--sans);font-size:11.5px;
+  color:var(--ink-soft);background:var(--paper-2);border:1px solid var(--ink);padding:10px 14px;
+  line-height:1.7;max-width:240px}
+.ledger .zero{color:var(--red);font-weight:700}
+
+@media (max-width:760px){
+  body{font-size:16px}
+  .leaf{grid-template-columns:1fr;gap:14px;padding:38px 0}
+  .gutter{text-align:left;padding-top:0}
+  .split{grid-template-columns:1fr}
+  .split>div:first-child{border-right:none;border-bottom:1px solid var(--ink)}
+  .tally .row{grid-template-columns:1fr;gap:4px}
+  .ledger{left:12px;right:12px;bottom:12px;max-width:none}
+  header.mast{padding:56px 0 28px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="docline">互動閱讀　·　所有引號內的句子逐字引自主辦單位公開之兩份決審紀要</div>
+  <div class="clock">
+    <div><div class="t one">13:00</div><div class="lbl">新詩組決審<br>聯合報大樓一樓</div></div>
+    <div><div class="t two">14:00</div><div class="lbl">小說組決審<br>同一棟大樓</div></div>
+  </div>
+  <h1>兩場會議相隔一小時。兩週後，兩篇第一名都不見了。</h1>
+  <p class="sub">
+    你會輪流坐四張椅子：新詩組評審、小說組評審、承辦編輯、被檢舉的那個學生。四張椅子都不好坐。<br>
+    沒有任何學生的姓名出現在這裡。檢舉人在本文中不是一個人，是一封信——因為在整個程序裡，它確實只以一封信的形式存在過。
+  </p>
+</header>
+
+<!-- ACT 1 -->
+<section class="leaf">
+  <div class="gutter"><span class="act b">第一幕</span>新詩組決審席<br>6/27　13:00<br>你是五位委員之一</div>
+  <div class="body">
+    <h2>下午一點</h2>
+    <p class="stage">二百一十三件進複審，二十二篇送到你桌上。這場會議裡，AI 也被提起了。一位委員說整體修辭愈來愈口語、帶翻譯體，問了一句「這會不會是AI的影響？」主席笑說自己是「帶著怕被AI愚弄的噩夢在評審」。</p>
+    <p>你們討論了十五首詩，然後投票。有一首特別受歡迎——寫兩個女高中生在考試壓力下，靠一款遊戲建立起私密連結。四個人給了它高分。</p>
+    <blockquote>一首詩裡面有如此複雜的場景和現象，幾乎像一篇短篇小說，我覺得是很天才的詩人。<cite>新詩組決審紀要，第一次會議</cite></blockquote>
+    <p>現在請投票。</p>
+    <div class="choices" data-act="1">
+      <button class="opt" data-o="a">給它最高分。你們五個人裡有四個都圈了它。</button>
+      <button class="opt" data-o="b">保留。有委員提到 AI 疑慮，你想不想因此壓低誰的分數？</button>
+    </div>
+    <div class="outcome blue hidden" id="o1"></div>
+  </div>
+</section>
+
+<!-- ACT 2 -->
+<section class="leaf hidden" id="act2">
+  <div class="gutter"><span class="act">第二幕</span>小說組決審席<br>6/27　14:00<br>換一批人，同一棟樓</div>
+  <div class="body">
+    <h2>下午兩點</h2>
+    <p class="stage">一個小時後，樓上。一百六十五件來稿，二十一篇進決審。徵文辦法你翻過了，上面沒有一個字提到 AI——工作人員在會議開頭就講明了這件事。</p>
+    <blockquote>在徵文規範沒有明文限制禁止使用AI輔助創作的前提下……<cite>小說組決審紀要，第一次會議</cite></blockquote>
+    <p>有一篇你特別喜歡，篇名叫〈實白〉。它寫的是修圖——一個高中生幫被邊緣化的同學修照片，順手把一個人從合照裡抹掉。</p>
+    <p>你心裡有個小疙瘩：它太完整了。紀錄上你是這樣講的：</p>
+    <blockquote>這篇小說好到讓我覺得太完整、太面面俱到了，我有點遲疑，但我當然還是願意相信他是自己創作的。<cite>小說組決審紀要，第一次會議</cite></blockquote>
+    <div class="choices" data-act="2">
+      <button class="opt" data-o="a">給它高分。你確實被打動了，而且沒有規則禁止任何事。</button>
+      <button class="opt" data-o="b">壓低它。「太完整」讓你不安，雖然你說不出理由。</button>
+    </div>
+    <div class="outcome hidden" id="o2"></div>
+  </div>
+</section>
+
+<!-- ACT 3 -->
+<section class="leaf hidden" id="act3">
+  <div class="gutter"><span class="act b">第三幕</span>編輯部<br>7月初<br>你是承辦編輯</div>
+  <div class="body">
+    <h2>新詩組的第一名打了一通電話</h2>
+    <p class="stage">名次還沒公開。新詩組第一名的作者主動打電話給另一名學生，說自己的得獎作品用了對方的句子，問她介不介意。對方當下太錯愕，答應了；想了幾天，說沒辦法接受。</p>
+    <p>她寄信到編輯部。信沒有人回。她直接打電話過來，你們才去看信箱。</p>
+    <p>你手上的東西，跟樓上那篇小說完全不同：<strong>當事人自己承認了，兩篇文本都在，句子可以逐字比對。</strong>這是你這輩子會遇到最清楚的一種案子。</p>
+    <div class="choices" data-act="3">
+      <button class="opt" data-o="a">在得獎作品上加註引用來源，請得獎者在感言裡提到她。</button>
+      <button class="opt" data-o="b">讓她的作品搶先在報上刊出，這樣得獎者刊出時就算合理引用了。</button>
+      <button class="opt" data-o="c">依規定送交第二次評審會議。</button>
+    </div>
+    <div class="outcome blue hidden" id="o3"></div>
+    <div class="missing hidden" id="missing">
+      <div class="big">？月？日</div>
+      <p class="cap">
+        新詩組的決審紀要記載了第一次會議的日期、地點、五位委員的姓名、二十二篇詩作的完整討論。
+        關於取消資格，它只寫了一句話——而那句話裡沒有日期。<br><br>
+        整份紀錄，沒有寫第二次評審會議是哪一天開的。<br><br>
+        記住這個空格。第五幕會用到。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ACT 4 -->
+<section class="leaf hidden" id="act4">
+  <div class="gutter"><span class="act">第四幕</span>小說組・線上<br>7/1<br>你回到小說組評審席</div>
+  <div class="body">
+    <h2>一封五月的信，七月被拿出來</h2>
+    <p class="stage">主辦單位收到一封具名來信，說有參賽作品可能使用 AI。你不知道寄信的是誰、跟誰認識、有沒有參賽。也沒有人告訴你有查證程序。</p>
+    <p>後來有一位評審在社群上公開問了一個問題：這封信五月就寄到了，為什麼現在才處理？那則貼文後來被刪掉了。</p>
+    <p>你也注意到，討論不是從這場會議開始的：</p>
+    <blockquote>評審委員先於臉書群組進行初步討論，並由群組之討論內容共同決議召開第二次會議交換意見。<cite>小說組決審紀要，第二次會議前言</cite></blockquote>
+    <p>另一位委員的第一句話是：「由昨天在群組的討論，其實每位評審都已經很具體地表達自己的立場與相應的做法。」實質討論發生在一個沒有紀錄的地方。你在這場會議要做的，是追認。</p>
+    <div class="choices" data-act="4">
+      <button class="opt" data-o="a">要求先查證檢舉人的身分與利害關係，再談其他。</button>
+      <button class="opt" data-o="b">回歸徵文辦法。上面沒禁止，就不能事後改規則。</button>
+      <button class="opt" data-o="c">聯繫作者，問他有沒有用 AI，請他書面說明。</button>
+      <button class="opt" data-o="d">首獎從缺。這樣誰都不用被判定。</button>
+    </div>
+    <div class="outcome hidden" id="o4"></div>
+  </div>
+</section>
+
+<!-- ACT 5 -->
+<section class="leaf hidden" id="act5">
+  <div class="gutter"><span class="act">第五幕</span>一個晚上<br>換一張椅子<br>你是那個十七歲的作者</div>
+  <div class="body">
+    <h2>你要證明一件沒有發生的事</h2>
+    <p class="stage">編輯打電話給你。他說有人檢舉你用 AI 寫作，要你提出說明。他沒有告訴你檢舉人是誰，也沒有告訴你檢舉的具體內容。你昨天才知道自己得了首獎。</p>
+    <p>你有一個晚上。你要寫一份東西，交給五個已經開過兩次會的陌生人。</p>
+    <div class="choices" data-act="5">
+      <button class="opt" data-o="a">誠實說：只用 AI 檢查過錯別字，因為我用手機打字容易打錯。</button>
+      <button class="opt" data-o="b">仔細寫下完整的創作歷程、每個意象的來源、為什麼取這個篇名。</button>
+      <button class="opt" data-o="c">附上取材對象同學的本名和你們的合照，證明這個人真的存在。</button>
+      <button class="opt" data-o="d">什麼都不寫。舉證責任不在我身上。</button>
+    </div>
+    <div class="outcome hidden" id="o5"></div>
+    <div class="teapot hidden" id="teapot">
+      <div class="eq">沒有證據證明它不存在<br><span>≠</span><br>有證據證明它存在</div>
+      <p>羅素的茶壺。你被要求證明太陽系裡沒有一只繞行的茶壺。你越是仔細地說明你如何觀測過每一個角落，越像一個早就準備好答案的人。</p>
+      <p>再選一次。任何一個選項都可以。看看會怎樣。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ACT 6 -->
+<section class="leaf hidden" id="act6">
+  <div class="gutter"><span class="act">第六幕</span>重新投票<br>7/2<br>最後一次坐在評審席</div>
+  <div class="body">
+    <h2>你現在知道他叫什麼名字</h2>
+    <p class="stage">作者的書面說明送到了。裡面有他的創作理念、他的取材對象、那位同學的本名和照片。這些現在都在你螢幕上。台灣的單篇文學獎有匿名評審的默契，副刊主任在上一場會議裡自己提過。那個默契在你點開附件的瞬間結束了。</p>
+    <blockquote>我們現在沒有真憑實據同學是否有使用AI協作，只能自由心證。<cite>小說組決審紀要，第三次會議</cite></blockquote>
+    <blockquote>即使我懷疑這篇小說可能有使用到AI，但我們其實沒有任何方法去提出證據。<cite>小說組決審紀要，第三次會議</cite></blockquote>
+    <blockquote>這篇作品若是存在AI協作，並不是真的違反徵文規範……為表公平，卻同時是一種並不公平的折衷。<cite>小說組決審紀要，第三次會議</cite></blockquote>
+    <p>「為表公平，卻同時是一種並不公平的折衷。」他知道。他們都知道。然後還是要投。</p>
+    <p>你手上的證據是零。你手上有的是：一封沒查證的信、一份作者的自白、一個名字、一張臉。</p>
+    <div class="choices" data-act="6">
+      <button class="opt" data-o="a">維持原名次。沒有證據就不能改。</button>
+      <button class="opt" data-o="b">重新投票。這是唯一能讓所有人都下台的方式。</button>
+      <button class="opt" data-o="c">退出評審團。這場會議不該存在。</button>
+    </div>
+    <div class="outcome hidden" id="o6"></div>
+  </div>
+</section>
+
+<!-- FINALE -->
+<section class="leaf hidden" id="fin">
+  <div class="gutter"><span class="act">終幕</span>結算</div>
+  <div class="body">
+    <h2>兩份紀錄，兩套標準</h2>
+    <div class="split">
+      <div>
+        <h4>小說組</h4>
+        <ul>
+          <li>證據：一封未經查證的具名信。</li>
+          <li>當事人否認。</li>
+          <li>規範未明文禁止該行為，評審自己也這樣寫。</li>
+          <li>三次追加會議，名次變更。</li>
+          <li>三次會議紀錄全文公開，含五位成年評審對一名十七歲學生誠信與人格的即時評價。</li>
+          <li>該紀錄公開後成為跨境媒體評論的素材。</li>
+        </ul>
+      </div>
+      <div>
+        <h4>新詩組</h4>
+        <ul>
+          <li>證據：作者自己承認，文本可逐字比對。</li>
+          <li>主辦方先後提出兩種讓爭議合法化的方案。</li>
+          <li>受影響者多次拒絕後，才送交重審。</li>
+          <li>結果：取消資格。</li>
+          <li>公開紀錄只有一句話，處理經過未公開，姓名未揭露。</li>
+          <li>結尾寫著：「決審圓滿完成」。</li>
+        </ul>
+      </div>
+    </div>
+    <p>差別不在證據強弱。<strong>證據強的那一邊被保護了，證據弱的那一邊被公開了。</strong></p>
+
+    <p>還有最後一件事。會議紀錄後來全文公開了——這是慣例。但主辦方其後發布聲明表示，紀錄「部分用語引起誤解，為尊重當事人感受，經雙方溝通後已修正部分文字」。</p>
+    <p>一份關於「這個學生是不是修改了他的作品」的紀錄，最後自己被修改了。而〈實白〉寫的正是修圖與塗抹。</p>
+
+    <div class="tally">
+      <div class="row"><div class="who">那位小說作者</div><div>公開名次為佳作。另獲一個原本不存在、為此新設的「評審團獎」。他的寫作理念、被質疑的過程、評審對他的評語，全部留在網路上，會跟著他去申請大學。</div></div>
+      <div class="row"><div class="who">那位新詩作者</div><div>失去新詩組第一名。她的名字沒有出現在任何公開文件裡，其他組別的獎項不受影響。第一次決審時她的小說本來就是第二名——她不需要任何人幫忙就能往前遞補。這一點必須講清楚：沒有任何證據顯示她知道那封信的存在。</div></div>
+      <div class="row"><div class="who">被取用句子的那位學生</div><div>為了讓一件當事人已經承認的事被正式處理，她打了好幾通電話、拒絕了兩個方案、花了幾個月。最後拿到的是紀錄上的五個字：著作權爭議。沒有道歉，沒有公開說明。</div></div>
+      <div class="row"><div class="who">那位公開道歉的評審</div><div>在社群上寫了程序錯了就是錯了，也問了為什麼五月的信七月才處理。那批貼文後來全部刪除。他是唯一一個在公開場合承認程序有問題的人，然後他把話收了回去。</div></div>
+      <div class="row"><div class="who">其餘四位小說組評審</div><div>在紀錄裡留下「只能自由心證」「沒有任何方法去提出證據」「並不是真的違反徵文規範」，然後投了票。這些句子現在是公開的，會一直掛在他們的名字旁邊。</div></div>
+      <div class="row"><div class="who">其他得獎者</div><div>他們的名次是在一場沒有人有證據的重新投票中產生的。這件事會永遠掛在他們的獎項旁邊，而他們什麼也沒做。</div></div>
+      <div class="row"><div class="who">寫那封信的人</div><div>從頭到尾沒有出現在任何一份公開文件裡。沒有被查證身分，沒有被查證利害關係，不需要為任何事負責。</div></div>
+      <div class="row"><div class="who">主辦單位</div><div>下一屆會修訂徵文辦法。</div></div>
+    </div>
+
+    <h2 style="margin-top:52px">還沒有人回答的問題</h2>
+    <ol class="qs">
+      <li class="key">新詩組第二次評審會議是哪一天開的？這個日期不在公開紀錄裡，卻是唯一能回答一切的東西。如果它在七月一日之前，那封五月的信就是在另一個組別的第一名被取消之後，才被拿出來的。如果它在七月二日之後，這條線就不成立。主辦單位只要說一個數字。</li>
+      <li>檢舉函是什麼時候收到的？如果是五月，為什麼六月二十七日的決審會議照常舉行，等名次定了才處理？</li>
+      <li>主辦單位有沒有查證具名檢舉人的身分和利害關係？如果沒有，為什麼？</li>
+      <li>第二次會議的實質討論發生在臉書群組。那些討論留存了嗎？為什麼不在公開紀錄裡？</li>
+      <li>為什麼小說組公開了評審對一名高中生的人格評價，新詩組的處理經過卻只有一句話？兩份紀錄的公開標準由誰決定？</li>
+      <li>「請受影響者先發表作品，使後續引用合法化」這個方案，是誰提的？依什麼權限？</li>
+      <li>新詩組紀錄寫的是「作者於通知獲獎後告知」著作權爭議，但受影響者的說法是她自己寄信、打了好幾通電話才有人處理。主辦單位是什麼時候、透過誰知道這件事的？</li>
+      <li>「評審團獎」的設立依據是什麼？它在徵文辦法裡嗎？</li>
+      <li>那位評審的公開致歉貼文，為什麼刪除？</li>
+    </ol>
+
+    <p class="fnote">
+      關於這份文件：所有加上引號的句子，均逐字引自主辦單位自行公開的兩份決審紀要，可對照原件查核。評審一律不具名，因為本文要談的是那個位置，不是坐在上面的人。所有學生一律不具名，作品篇名在指名即足以識別作者時亦不列出。檢舉人在本文中始終只是一封信——這不是保護，是準確：在整個程序裡，它確實只以一封信的形式存在過，沒有人查證過它背後是誰。<br><br>
+      本文不主張〈實白〉是否使用 AI。這一點在現有證據下無法認定，評審與主辦單位也已在紀錄與聲明中自承無法認定。本文也不主張任何人串通——沒有任何證據指向這一點，而本案的申訴方已經在無證據的情況下錯誤指控過一個人，並為此公開道歉。<br><br>
+      本文主張的只有兩件事：第一，在無法認定的情況下作成的不利決定，程序有瑕疵。第二，同一個單位在同一天的兩場決審之後，面對證據強度相反的兩件事，採取了完全相反的處理方式。這兩件事都完全建立在主辦單位自己公開的文件上。
+    </p>
+
+    <button class="restart" id="restart">從下午一點重新開始</button>
+  </div>
+</section>
+
+</div>
+
+<div class="ledger" id="ledger">
+  <div>你手上的證據：<span class="zero" id="ev">0 件</span></div>
+  <div id="ledgernote" style="margin-top:6px;color:var(--ink-faint)">這個數字在整份紀錄裡從來沒有變過。</div>
+</div>
+
+<script>
+(function(){
+  var tries5 = 0;
+
+  var OUT = {
+    '1':{
+      a:'<div class="verdict">第二輪投票結果</div>'+
+        '<table class="board">'+
+        '<tr class="her"><td>原第一名作品</td><td><span class="num">17</span></td></tr>'+
+        '<tr><td>次篇</td><td><span class="num">16</span></td></tr>'+
+        '<tr><td>第三篇</td><td><span class="num">15</span></td></tr>'+
+        '<tr><td>並列第四</td><td><span class="num">11</span></td></tr>'+
+        '<tr><td>並列第四</td><td><span class="num">11</span></td></tr>'+
+        '</table>'+
+        '<p>它拿了第一名。會議結束，紀錄寫得完整而愉快。</p>'+
+        '<p>請記住一件事：<strong>這場會議也談過 AI，而且是評審自己提的。但新詩組沒有因為 AI 疑慮改過任何人的名次，也沒有要求任何學生自證。</strong>一個小時後，樓上會是另一種處理方式。</p>',
+      b:'<div class="verdict">你想壓，但沒有依據</div>'+
+        '<p>你找不到理由。「口語」「翻譯體」不是證據，你也拿不出任何東西。所以你沒有壓。</p>'+
+        '<p>這是正確的做法，而且新詩組全體都是這樣做的——AI 被提起、被討論、然後沒有變成任何人的罪名。<strong>一個小時後，樓上會是另一種處理方式。</strong></p>'+
+        '<table class="board">'+
+        '<tr class="her"><td>原第一名作品</td><td><span class="num">17</span></td></tr>'+
+        '<tr><td>次篇</td><td><span class="num">16</span></td></tr>'+
+        '<tr><td>第三篇</td><td><span class="num">15</span></td></tr>'+
+        '</table>'
+    },
+    '2':{
+      a:'給〈實白〉高分的不只你一個。五個人裡有三個圈了它，五個人都給了高分。',
+      b:'你壓低了，但沒有用。另外四個人喜歡它。而且你說不出理由——「太完整」不是理由，你自己也知道。'
+    },
+    '3':{
+      a:'<div class="verdict">這是主辦方最先提出的方案</div><p>加註引用來源，並在得獎感言中提及對方。受影響的學生沒有接受。</p>',
+      b:'<div class="verdict">這是主辦方接著提出的方案</div><p>如果讓那位學生的作品先在報上刊出，得獎者後來刊出時，就可以「合理引用過去報刊作者的文句」——爭議在技術上就消失了。</p><p>她說她沒有時間也沒有心力，拒絕了。</p><p>這個方案的設計目的，是讓一件已經發生的事在形式上變成沒有發生。它出現在樓上那位作者被要求自證的同一段時間裡。</p>',
+      c:'<div class="verdict">這是最後才發生的事</div><p>經過數次電話往返、兩個方案被拒絕、受影響者明確表示完全不接受之後，主辦方才把案子送交第二次評審會議。結果是取消資格。</p><p>公開的紀錄上，關於這整件事只有一句話。結尾寫著：「決審圓滿完成」。</p>'
+    },
+    '4':{
+      a:'<div class="verdict">沒有這個程序</div><p>你問了，沒有人接。整份公開紀錄裡，沒有任何一句話提到查證檢舉人的身分或利害關係。這件事從頭到尾沒有發生過。</p><p>會議繼續。</p>',
+      b:'<div class="verdict">你說對了，然後被繞過去</div><p>你不是第一個講這句話的人：</p><blockquote>我傾向回歸徵文辦法，遊戲有遊戲規則，如果邊玩邊改，難免有失公允。<cite>第二次會議，聯合報副刊組主任</cite></blockquote><blockquote>此次比賽的徵文辦法先前業已公布，並沒有提到AI協作會如何處理，那是一個具體的遊戲規則與法源，我們不能事後更改。<cite>第二次會議，某委員</cite></blockquote><p>紀錄裡至少兩個成年人明確說了不能事後改規則。最後的結果和他們說的相反。<strong>這是這個故事最難解釋的部分：沒有人做錯得很明顯，但錯還是發生了。</strong></p>',
+      c:'<div class="verdict">你打開了那扇門</div><p>這是最合理、最溫和、看起來最負責任的選項。它也是整件事無法挽回的那一步。</p><p>一旦你要求他自證，他的任何回應都會變成新的材料。下一幕你會看到這件事怎麼發生。</p>',
+      d:'<div class="verdict">首獎從缺</div><p>第二次會議確實這樣決議了。看起來乾淨：沒有人被判定作弊，獎項只是空著。</p><p>但這個決定沒有撐過二十四小時。隔天，同一批人開了第三次會議，把名次重新投了一遍。</p>'
+    },
+    '5':{
+      a:'<div class="verdict">紀錄上的回應</div><blockquote>同學不肯開放地談論如何在創作過程使用AI協作，只剩下改錯字的自白。<cite>第三次會議</cite></blockquote><p>「只剩下」。你說了實話，實話被讀成不夠。</p>',
+      b:'<div class="verdict">紀錄上的回應</div><blockquote>同學的回應非常成熟，像是他一直都準備好要回答這個提問了。<cite>第三次會議</cite></blockquote><blockquote>當我看到同學的書面回應全面地討好評審，我覺得已經沒有使用AI的公眾討論意義了。<cite>第三次會議</cite></blockquote><p>你寫得越完整，越像是準備好的。這正是你被檢舉的理由的翻版：寫得太好，所以可疑。</p>',
+      c:'<div class="verdict">紀錄上的回應</div><blockquote>他直接點出取材對象，甚至不惜露出該同學的原名與相片，以取信於評審。<cite>第三次會議</cite></blockquote><p>「不惜」。你為了自證，把另一個人的名字和臉交了出去——而這件事本身，又被記在你的帳上。這一段後來也隨紀錄公開了。</p>',
+      d:'<div class="verdict">沒有回應也是一種回應</div><p>紀錄裡會出現「創作者不願說明」。第三次會議照開，票照投。</p><p>你的沉默不會被讀成清白，會被讀成心虛。</p>'
+    },
+    '6':{
+      a:'<div class="verdict">你的一票</div><p>你可以這樣投。但重新投票已經被決議了，你只是五分之一。</p>',
+      b:'<div class="verdict">你的一票</div><p>五個人都這樣想。理由各不相同：有人為了公平，有人為了降低衝擊，有人想給後面的學生一個明確的規範。每個理由單獨看都成立。</p>',
+      c:'<div class="verdict">沒有人這樣做</div><p>公開紀錄裡沒有任何一位委員退出。這不是一個真的存在的選項——會議已經在開了，你不出席，票還是會投。</p>'
+    }
+  };
+
+  var FINAL =
+    '<div class="verdict">重新投票結果（就前五名，5/4/3/2/1 排序）</div>'+
+    '<table class="board">'+
+    '<tr class="her"><td>某篇作品</td><td><span class="num">23</span></td></tr>'+
+    '<tr><td>次篇</td><td><span class="num">19</span></td></tr>'+
+    '<tr><td>第三篇</td><td><span class="num">14</span></td></tr>'+
+    '<tr><td>第四篇</td><td><span class="num">10</span></td></tr>'+
+    '<tr class="you"><td>〈實白〉</td><td><span class="num">9</span></td></tr>'+
+    '</table>'+
+    '<p>同一批委員，同一批作品，沒有任何新證據。<del>36 分，第一名</del> <ins>9 分，第五名</ins></p>'+
+    '<div style="border:1px solid var(--ink);padding:18px 20px;margin:22px 0;background:rgba(47,93,107,.07)">'+
+    '<p style="margin:0 0 10px"><strong>然後你看到那篇拿到首獎的作品是誰寫的。</strong></p>'+
+    '<p style="margin:0 0 10px">是第一幕那位新詩組的第一名。一個小時前她在樓下拿了新詩第一，兩週前那個第一名被取消了，現在她拿到小說組第一名。</p>'+
+    '<p style="margin:0">她的小說在六月二十七日本來就是第二名。名次往前遞補，不需要任何人幫忙，也沒有任何證據顯示她知道那封信的存在。<strong>能夠回答這件事的，不是任何人的動機，是一個日期。</strong>就是第三幕那個空格。</p>'+
+    '</div>';
+
+  function show(id){var e=document.getElementById(id); if(e) e.classList.remove('hidden');}
+  function go(id){show(id); var e=document.getElementById(id);
+    setTimeout(function(){e.scrollIntoView({behavior:'smooth',block:'start'})},220);}
+
+  document.querySelectorAll('.choices').forEach(function(box){
+    var act = box.dataset.act;
+    box.addEventListener('click', function(e){
+      var btn = e.target.closest('button.opt');
+      if(!btn || btn.disabled) return;
+      var o = btn.dataset.o;
+
+      if(act === '5'){
+        tries5++;
+        btn.classList.add('chosen'); btn.disabled = true;
+        var o5 = document.getElementById('o5');
+        o5.classList.remove('hidden'); o5.innerHTML = OUT['5'][o];
+        if(tries5 === 1){
+          show('teapot');
+          document.getElementById('ledgernote').textContent = '無論你選哪一個，證據都不會增加。這就是重點。';
+        }
+        if(tries5 >= 2){
+          document.getElementById('teapot').innerHTML =
+            '<div class="eq">沒有證據證明它不存在<br><span>≠</span><br>有證據證明它存在</div>'+
+            '<p>你試了 '+tries5+' 次。每一條路的盡頭都有一句紀錄在等你。誠實不夠，詳細太可疑，自證會傷到別人，沉默是心虛。'+
+            '這不是因為評審惡意——他們手上也沒有任何工具可以判斷。這是把舉證責任放錯位置之後，必然會長出來的形狀。</p>';
+          go('act6');
+        }
+        return;
+      }
+
+      box.querySelectorAll('button.opt').forEach(function(b){b.disabled = true});
+      btn.classList.add('chosen');
+
+      if(act === '1'){
+        var o1 = document.getElementById('o1');
+        o1.classList.remove('hidden'); o1.innerHTML = OUT['1'][o];
+        go('act2');
+      } else if(act === '2'){
+        var o2 = document.getElementById('o2');
+        o2.classList.remove('hidden');
+        o2.innerHTML = '<div class="verdict">第二輪投票結果</div>'+
+          '<table class="board">'+
+          '<tr class="you"><td>〈實白〉</td><td><span class="num">36</span></td></tr>'+
+          '<tr class="her"><td>次篇</td><td><span class="num">34</span></td></tr>'+
+          '<tr><td>第三篇</td><td><span class="num">31</span></td></tr>'+
+          '<tr><td>第四篇</td><td><span class="num">23</span></td></tr>'+
+          '<tr><td>第五篇</td><td><span class="num">20</span></td></tr>'+
+          '</table><p>'+OUT['2'][o]+'</p>'+
+          '<p>會議結束。五個人簽了字。你回家了。同一天，兩個組別，兩個第一名。</p>';
+        go('act3');
+      } else if(act === '3'){
+        var o3 = document.getElementById('o3');
+        o3.classList.remove('hidden'); o3.innerHTML = OUT['3'][o];
+        show('missing'); go('act4');
+      } else if(act === '4'){
+        var o4 = document.getElementById('o4');
+        o4.classList.remove('hidden'); o4.innerHTML = OUT['4'][o];
+        go('act5');
+      } else if(act === '6'){
+        var o6 = document.getElementById('o6');
+        o6.classList.remove('hidden'); o6.innerHTML = OUT['6'][o] + FINAL;
+        go('fin');
+      }
+    });
+  });
+
+  document.getElementById('restart').addEventListener('click', function(){ location.reload(); });
+})();
+</script>
+</body>
+</html>
